@@ -11,11 +11,12 @@ app.use(express.urlencoded({limit: '50mb', extended: true}));
 app.use(express.static(__dirname));
 
 // Database Connection Pool with Auto-Reconnect
+// Database Connection with Correct Railway Database Name ('railway')
 const db = mysql.createPool({
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || 'Ramp@123',
-    database: process.env.MYSQLDATABASE || 'food_app_db',
+    database: process.env.MYSQLDATABASE || 'railway', // Yeh local ke liye food_app_db aur Railway ke liye 'railway' use karega
     port: process.env.MYSQLPORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,

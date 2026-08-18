@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Food Market</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="container" style="max-width: 500px; margin-top: 100px; text-align: center;">
+    <!-- Loading Screen (Shuru me hidden rahega) -->
+    <div id="loaderOverlay" class="hidden">
+        <div class="spinner"></div>
+        <p style="color: white; margin-top: 15px; font-weight: bold; font-size: 18px;">Sending OTP, Please wait...</p>
+    </div>    
+        <!-- Login Form (Updated for OTP) -->
+        <div id="loginBox">
+            <h1 style="color: #ff5200; margin-bottom: 5px;">Food Market</h1>
+            <h2 style="margin-bottom: 20px; color: #555;">Login with OTP</h2>
+            
+            <!-- Step 1: Email Input -->
+            <div id="emailStep">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Enter Registered Email" required>
+                </div>
+                <button class="submit-btn" onclick="requestOTP()">Send OTP to Email</button>
+            </div>
+
+            <!-- Step 2: OTP Input (Starting me chupa rahega) -->
+            <!-- Step 2: OTP (Login) -->
+            <div id="otpStep" class="hidden" style="margin-top: 15px;">
+                <p style="color: #28a745; margin-bottom: 10px; font-weight: bold;">OTP sent to your email!</p>
+                <div class="form-group">
+                    <input type="text" id="loginOtp" placeholder="Enter 4-digit OTP" required>
+                </div>
+                <button class="submit-btn" style="background: #28a745;" onclick="verifyOTPLogin()">Verify & Login</button>
+                
+                <!-- Naya Resend OTP & Timer Code -->
+                <p id="loginTimerText" style="margin-top: 15px; font-size: 14px; color: #555;">Resend OTP in <span id="loginTimer" style="color:#ff5200; font-weight:bold;">60</span>s</p>
+                <button id="loginResendBtn" class="submit-btn hidden" style="background: #ffc107; color: black; margin-top: 10px;" onclick="requestOTP()">Resend OTP</button>
+            </div>
+            <p style="margin-top: 15px;">New user? <a href="#" style="color: #ff5200; font-weight: bold;" onclick="toggleAuth()">Register here</a></p>
+        </div>
+
+        <!-- Registration Form (Updated with OTP) -->
+        <div id="registerBox" class="hidden">
+            <h1 style="color: #ff5200; margin-bottom: 5px;">Food Market</h1>
+            <h2 style="margin-bottom: 20px; color: #555;">Create Account</h2>
+            
+            <!-- Step 1: Details -->
+            <div id="regDetailsStep">
+                <div class="form-group"><input type="text" id="regName" placeholder="Full Name" required></div>
+                <div class="form-group"><input type="text" id="regUsername" placeholder="Unique Username" required></div>
+                <div class="form-group"><input type="email" id="regEmail" placeholder="Email Address" required></div>
+                <div class="form-group"><input type="text" id="regMobile" placeholder="Mobile Number" required></div>
+                <div class="form-group"><input type="password" id="regPass" placeholder="Password" required></div>
+                <button class="submit-btn" onclick="requestRegisterOTP()">Send OTP</button>
+            </div>
+
+            <!-- Step 2: OTP (Chupa hua rahega) -->
+            <!-- Step 2: OTP (Registration) -->
+            <div id="regOtpStep" class="hidden" style="margin-top: 15px;">
+                <p style="color: #28a745; margin-bottom: 10px; font-weight: bold;">OTP sent to your email!</p>
+                <div class="form-group">
+                    <input type="text" id="regOtp" placeholder="Enter 4-digit OTP" required>
+                </div>
+                <button class="submit-btn" style="background: #28a745;" onclick="registerUser()">Verify & Register</button>
+                
+                <!-- Naya Resend OTP & Timer Code -->
+                <p id="regTimerText" style="margin-top: 15px; font-size: 14px; color: #555;">Resend OTP in <span id="regTimer" style="color:#ff5200; font-weight:bold;">60</span>s</p>
+                <button id="regResendBtn" class="submit-btn hidden" style="background: #ffc107; color: black; margin-top: 10px;" onclick="requestRegisterOTP()">Resend OTP</button>
+            </div>
+
+            <p style="margin-top: 15px;">Already have an account? <a href="#" style="color: #ff5200; font-weight: bold;" onclick="toggleAuth()">Login here</a></p>
+        </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

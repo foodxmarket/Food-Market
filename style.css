@@ -1,0 +1,318 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.hidden { display: none !important; }
+
+/* Navbar */
+nav {
+    background-color: #ff5200; /* Swiggy type orange */
+    color: white;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.nav-right { display: flex; gap: 20px; align-items: center; }
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.switch-btn, .action-btn {
+    padding: 10px 20px;
+    background: white;
+    color: #ff5200;
+}
+
+.switch-btn:hover { background: #ffe0d1; }
+
+.profile-icon {
+    font-size: 20px;
+    background: white;
+    color: #ff5200;
+    border-radius: 50%;
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+/* Containers & Cards */
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.food-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 25px;
+}
+
+.food-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.food-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.food-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.buy-btn {
+    background: #28a745;
+    color: white;
+    padding: 10px;
+    width: 100%;
+    margin-top: 15px;
+}
+.buy-btn:hover { background: #218838; }
+
+/* Forms & Modals */
+.form-group { margin-bottom: 20px; text-align: left; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+}
+.form-group input:focus { border-color: #ff5200; }
+.form-group input[readonly] { background-color: #e9ecef; cursor: not-allowed; color: #666; }
+
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #ff5200;
+    color: white;
+    font-size: 16px;
+}
+
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 450px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #ff0000;
+}
+/* ========================================= */
+/* MOBILE RESPONSIVENESS & CART UI ADDITIONS */
+/* ========================================= */
+
+.modal-content {
+    max-width: 90%; /* Mobile par modal screen ke bahar nahi jayega */
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        padding: 15px 10px;
+        gap: 15px;
+        text-align: center;
+    }
+    .nav-right {
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        gap: 10px;
+    }
+    .switch-btn, .action-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+        flex-grow: 1; /* Button mobile me screen ke hisab se fail jayenge */
+    }
+    .container {
+        margin: 15px 10px;
+        padding: 15px;
+    }
+    .food-grid {
+        /* Mobile me ek line me 2 items ya chhote items dikhane ke liye */
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+    }
+    .food-card {
+        padding: 10px;
+    }
+    .food-card img {
+        height: 120px;
+    }
+    .food-card h3 {
+        font-size: 15px;
+    }
+    .food-card h4 {
+        font-size: 14px;
+    }
+}
+
+/* Cart Item Styling */
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+.cart-remove-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+/* ========================================= */
+/* LOADING SPINNER SCREEN                      */
+/* ========================================= */
+
+#loaderOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Background thoda dark */
+    z-index: 9999; /* Sabse upar dikhane ke liye */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#loaderOverlay.hidden {
+    display: none !important;
+}
+
+.spinner {
+    border: 6px solid #f3f3f3; /* Light grey ring */
+    border-top: 6px solid #ff5200; /* Food Market orange color */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+/* Spinner ko ghumane ka animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* ========================================= */
+/* CATEGORY FILTER STYLES                    */
+/* ========================================= */
+#categoryFilter {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto; /* Mobile par slide hone ke liye */
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Scrollbar chupane ke liye */
+}
+#categoryFilter::-webkit-scrollbar {
+    display: none;
+}
+.cat-btn {
+    padding: 8px 18px;
+    border: 1px solid #ff5200;
+    background: white;
+    color: #ff5200;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+.cat-btn.active {
+    background: #ff5200;
+    color: white;
+}
+/* Full Screen Loader Overlay */
+#loaderOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7); /* Background dark/dim karne ke liye */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Sabse aage rakhne ke liye */
+}
+
+/* Custom Auto-dismiss Popup (Toast) */
+.custom-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out, top 0.4s ease-in-out;
+    font-weight: bold;
+    pointer-events: none; /* User iske piche click kar paye */
+}
+
+.custom-toast.show {
+    opacity: 1;
+    top: 40px; /* Thoda neeche aane ka animation */
+}
+
+.custom-toast.success { background-color: #28a745; }
+.custom-toast.error { background-color: #dc3545; }

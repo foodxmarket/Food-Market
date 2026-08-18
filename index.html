@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Food Market</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <h2>Food Market</h2>
+        <div class="nav-right">
+            <button class="action-btn" onclick="openCartModal()" style="background:#ffc107; color:black;">🛒 Cart (<span id="cartCount">0</span>)</button>
+            <button class="action-btn" onclick="openModal('orderListModal')">❤️ Wishlist & Orders</button>
+            <div class="profile-icon" onclick="openModal('profileModal')">👤</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- BUYER DASHBOARD -->
+        <div id="buyerView">
+            <h2>Order Fresh Food</h2>
+            <div id="categoryFilter">
+                <button class="cat-btn active" onclick="filterCategory('All')">All</button>
+                <button class="cat-btn" onclick="filterCategory('Veg')">🥗 Pure Veg</button>
+                <button class="cat-btn" onclick="filterCategory('Non-Veg')">🍗 Non-Veg</button>
+                <button class="cat-btn" onclick="filterCategory('Pizza')">🍕 Pizza</button>
+                <button class="cat-btn" onclick="filterCategory('Burger')">🍔 Burger</button>
+                <button class="cat-btn" onclick="filterCategory('Biryani')">🥘 Biryani</button>
+                <button class="cat-btn" onclick="filterCategory('Chinese')">🍜 Chinese</button>
+                <button class="cat-btn" onclick="filterCategory('Dessert')">🍦 Dessert</button>
+                <button class="cat-btn" onclick="filterCategory('Drinks')">🥤 Drinks</button>
+            </div>
+            <div class="food-grid" id="buyerFoodList">
+                <!-- Data API se aayega -->
+            </div>
+        </div>
+    
+
+        <!-- SELLER DASHBOARD -->
+        <div id="sellerView" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>My Seller Dashboard</h2>
+                <button class="submit-btn" style="width: auto;" onclick="openModal('addFoodModal')">+ ADD NEW FOOD</button>
+            </div>
+            <div class="food-grid" id="sellerFoodList">
+                <!-- Data API se aayega -->
+            </div>
+            
+            <hr style="margin: 40px 0; border: 1px solid #ddd;">
+            
+            <h2>Customer Orders (Manage)</h2>
+            <div id="sellerOrdersList" style="margin-top: 20px; background: #fff9f5; padding: 20px; border-radius: 8px;">
+                <!-- Seller ko orders yahan dikhenge -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS START HERE -->
+     <!-- Cart Modal -->
+    <div id="cartModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('cartModal')">&times;</span>
+            <h2 style="margin-bottom: 10px;">🛒 My Cart</h2>
+            
+            <!-- Yahan cart ke items aayenge -->
+            <div id="cartItemsList" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;"></div>
+            
+            <h3 style="text-align: right; color: #ff5200;">Total: ₹<span id="cartTotal">0</span></h3>
+            <hr style="margin: 15px 0;">
+
+            <!-- Checkout Form -->
+            <form onsubmit="checkoutCart(event)">
+                <div class="form-group"><label>Delivery Address</label><textarea id="cartAddress" rows="2" required></textarea></div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="cartPaymentMethod" style="width: 100%; padding: 10px; border-radius: 5px;">
+                        <option value="Cash on Delivery">Cash on Delivery</option>
+                        <option value="Online / UPI on Delivery">Online / UPI on Delivery</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn" style="background: #28a745;">Place Order for All Items</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add Food Modal (Seller) -->
+    <div id="addFoodModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('addFoodModal')">&times;</span>
+            <h2 style="margin-bottom: 20px;">Add Food to Sell</h2>
+            <form id="addFoodForm" onsubmit="submitFood(event)">
+                <div class="form-group">
+                    <label>Upload 1 Picture</label>
+                    <input type="file" id="newFoodImage" accept="image/*" required style="border: 2px dashed #ff5200; padding: 25px; width: 100%; text-align: center; background: #fff; cursor: pointer;">
+                </div>
+                <div class="form-group">
+                    <label>Select Category</label>
+                    <select id="newFoodCategory" required style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                        <option value="Veg">🥗 Pure Veg</option>
+                        <option value="Non-Veg">🍗 Non-Veg</option>
+                        <option value="Pizza">🍕 Pizza</option>
+                        <option value="Burger">🍔 Burger</option>
+                        <option value="Biryani">🥘 Biryani</option>
+                        <option value="Chinese">🍜 Chinese</option>
+                        <option value="Dessert">🍦 Dessert</button>
+                        <option value="Drinks">🥤 Drinks</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Item Name</label><input type="text" id="newFoodName" required></div>
+                <div class="form-group"><label>Price (₹)</label><input type="number" id="newFoodPrice" required></div>
+                <button type="submit" class="submit-btn">Publish Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Now Modal (Buyer) -->
+    <div id="orderModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('orderModal')">&times;</span>
+            <h2 style="margin-bottom: 10px;">Complete Order</h2>
+            <h3 id="orderItemName"></h3>
+            <h4 id="orderItemPrice" style="color: #ff5200; margin-bottom: 20px;"></h4>
+            <form onsubmit="placeOrder(event)">
+                <div class="form-group"><label>Delivery Address</label><textarea rows="3" required></textarea></div>
+                <div class="form-group"><label>Quantity</label><input type="number" value="1" min="1" required></div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="buyerPaymentMethod" style="width: 100%; padding: 10px; border-radius: 5px;">
+                        <option value="Cash on Delivery">Cash on Delivery</option>
+                        <option value="Online / UPI on Delivery">Online / UPI on Delivery</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn" style="background: #28a745;">Confirm Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Seller Response Modal -->
+    <div id="sellerResponseModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('sellerResponseModal')">&times;</span>
+            <h2 style="margin-bottom: 20px;">Respond to Order</h2>
+            <form id="sellerResponseForm" onsubmit="submitOrderResponse(event)">
+                <div class="form-group">
+                    <label>Real Preparation/Delivery Time:</label>
+                    <input type="text" id="respTime" placeholder="e.g., 45 Minutes" required>
+                </div>
+                <button type="submit" class="submit-btn">Send Update to Buyer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal hidden">
+        <div class="modal-content" style="width: 300px; text-align: center;">
+            <span class="close-btn" onclick="closeModal('profileModal')">&times;</span>
+            <h2>My Profile</h2><br>
+            <button class="submit-btn form-group" style="background:#17a2b8;" onclick="openModal('editProfileModal'); closeModal('profileModal')">Edit Profile</button>
+            
+            <!-- NAYA SELLER SWITCH BUTTON -->
+            <button id="roleSwitchBtn" class="submit-btn form-group" style="background:#ffc107; color:black; display: none;" onclick="toggleRole(); closeModal('profileModal')">Switch to Seller</button>
+            
+            <button class="submit-btn" style="background:#dc3545;" onclick="logout()">Log Out</button>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editProfileModal')">&times;</span>
+            <h2>Edit Profile</h2><br>
+            <div class="form-group"><label>Name:</label><input type="text" id="editName"></div>
+            <div class="form-group"><label>Username:</label><input type="text" id="editUsername"></div>
+            <div class="form-group"><label>Email:</label><input type="email" id="editEmail" readonly></div>
+            <div class="form-group"><label>Mobile:</label><input type="text" id="editMobile" readonly></div>
+            <button class="submit-btn" onclick="closeModal('editProfileModal'); alert('Profile Saved!')">Save Details</button>
+        </div>
+    </div>
+
+    <!-- Orders / Wishlist Modal -->
+    <div id="orderListModal" class="modal hidden">
+        <div class="modal-content" style="width: 500px;">
+            <span class="close-btn" onclick="closeModal('orderListModal')">&times;</span>
+            
+            <h2 style="color: #ff5200; margin-bottom: 10px;">❤️ My Wishlist</h2>
+            <div id="myWishlist" style="margin-bottom: 30px; border-bottom: 2px solid #ccc; padding-bottom: 10px;"></div>
+            
+            <h2 style="color: #28a745; margin-bottom: 10px;">📦 My Order History</h2>
+            <div id="myOrdersList"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Admin - Food Market</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav style="background-color: #333;">
+        <h2>🏢 Office Control Panel</h2>
+        <button class="action-btn" onclick="logoutOffice()" style="background:#dc3545; color:white;">Log Out</button>
+    </nav>
+
+    <div class="container" id="officeLoginBox" style="max-width: 400px; text-align: center; margin-top: 100px;">
+        <h2>Admin Login</h2>
+        <div class="form-group"><input type="text" id="adminId" placeholder="Admin ID"></div>
+        <div class="form-group"><input type="password" id="adminPass" placeholder="Password"></div>
+        <button class="submit-btn" style="background-color: #333;" onclick="verifyOfficeLogin()">Login</button>
+    </div>
+
+    <div class="container hidden" id="officeDashboardBox">
+        <div style="display:flex; justify-content: space-between;">
+            <h2>Admin Dashboard</h2>
+            <button class="submit-btn" style="width: auto; background: #007bff;" onclick="document.getElementById('addDeliveryBoyDiv').classList.toggle('hidden')">+ Create Delivery ID</button>
+        </div>
+        
+        <!-- Delivery Boy Banane ka Form -->
+        <div id="addDeliveryBoyDiv" class="hidden" style="background:#f1f1f1; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <h3>Create New Delivery Boy</h3>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <input type="text" id="dbName" placeholder="Name" class="form-group" style="margin:0;">
+                <input type="text" id="dbMobile" placeholder="Mobile" class="form-group" style="margin:0;">
+                <input type="text" id="dbUsername" placeholder="Username" class="form-group" style="margin:0;">
+                <input type="password" id="dbPass" placeholder="Password" class="form-group" style="margin:0;">
+                <button class="submit-btn" style="width:auto; margin:0;" onclick="createDeliveryBoy()">Create Account</button>
+            </div>
+        </div>
+
+        <!-- NEW: Tabs for Admin (Live Orders vs Manage Sellers) -->
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button class="submit-btn" style="background: #ff5200; flex: 1;" onclick="switchAdminTab('orders')">📦 Live Orders</button>
+            <button class="submit-btn" style="background: #333; flex: 1;" onclick="switchAdminTab('sellers')">👥 Manage Sellers & Stock</button>
+        </div>
+
+        <!-- Section 1: Live Orders -->
+        <div id="adminOrdersSection">
+            <h3 style="margin-top:20px; color: #28a745;">🔴 Live Active Orders</h3>
+            <div id="officeOrdersList"></div>
+        </div>
+
+        <!-- Section 2: Manage Sellers -->
+        <div id="adminSellersSection" class="hidden">
+            <h3 style="margin-top:20px; color: #dc3545;">🚨 Seller & Stock Management</h3>
+            <div id="officeSellersList"></div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

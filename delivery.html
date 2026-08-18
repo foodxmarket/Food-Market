@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Partner - Food Market</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav style="background-color: #28a745;">
+        <h2>🛵 Delivery Partner Panel</h2>
+        <button class="action-btn" onclick="logoutDelivery()" style="background:#dc3545; color:white;">Log Out</button>
+    </nav>
+
+    <!-- Login Box -->
+    <div class="container" id="deliveryLoginBox" style="max-width: 400px; text-align: center; margin-top: 100px;">
+        <h2>Delivery Login</h2>
+        <div class="form-group"><input type="text" id="delUsername" placeholder="Username" required></div>
+        <div class="form-group"><input type="password" id="delPass" placeholder="Password" required></div>
+        <button class="submit-btn" style="background-color: #28a745;" onclick="loginDeliveryBoy()">Login</button>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="container hidden" id="deliveryDashboard">
+        <h2>My Assigned Deliveries</h2>
+        <div id="deliveryOrdersList"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

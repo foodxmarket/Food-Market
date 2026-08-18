@@ -10,19 +10,20 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 app.use(express.static(__dirname));
 
-// Database Connection
-const db = mysql.createConnection({
+// Database Connection (Using Pool for Auto-Reconnect)
+const db = mysql.createPool({
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || 'Ramp@123',
     database: process.env.MYSQLDATABASE || 'food_app_db',
-    port: process.env.MYSQLPORT || 3306
+    port: process.env.MYSQLPORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect(err => {
-    if (err) console.error('Database connection failed:', err);
-    else console.log('Connected to MySQL Database!');
-});
+// Pool ko manual connect ki zaroorat nahi hoti, ye khud manage karta hai
+console.log('Database Connection Pool Created Successfully!');
 // Temporary memory to store OTPs
 const otpStorage = {}; 
 

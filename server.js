@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql'); // Yahan mysql2 ko hatakar mysql kiya gaya hai taaki crash na ho
+const mysql = require('mysql2'); // Yahan mysql2 ko hatakar mysql kiya gaya hai taaki crash na ho
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');

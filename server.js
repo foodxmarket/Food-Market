@@ -38,10 +38,15 @@ const transporter = nodemailer.createTransport({
 // AUTH & OTP APIs
 // =====================================
 
+// 1. Send OTP API (Safe with Error Catching)
 app.post('/api/send-otp', (req, res) => {
     const { email } = req.body;
+    
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            console.error('SQL Error in send-otp:', err.message);
+            return res.status(500).json({ error: 'Database error: ' + err.message });
+        }
         if (results.length === 0) return res.status(404).json({ error: 'Email not registered!' });
 
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
@@ -54,17 +59,19 @@ app.post('/api/send-otp', (req, res) => {
             html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px; max-width: 400px; margin: auto; background-color: #f9f9f9;">
                     <h2 style="color: #ff5200; text-align: center;">Food Market</h2>
-                    <p style="font-size: 16px; color: #333;">Hello,</p>
-                    <p style="font-size: 16px; color: #333;">To safely login to your account, please use the following One-Time Password (OTP):</p>
+                    <p style="font-size: 16px; color: #333;">To safely login to your account, use this OTP:</p>
                     <div style="text-align: center; margin: 20px 0;">
-                        <span style="font-size: 24px; font-weight: bold; background: #fff; padding: 10px 20px; border: 2px dashed #28a745; color: #28a745; letter-spacing: 5px; border-radius: 5px;">${otp}</span>
+                        <span style="font-size: 24px; font-weight: bold; background: #fff; padding: 10px 20px; border: 2px dashed #28a745; color: #28a745; letter-spacing: 5px;">${otp}</span>
                     </div>
                 </div>
             `
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
-            if (error) return res.status(500).json({ error: 'Failed to send OTP' });
+            if (error) {
+                console.error('Email Send Error:', error.message);
+                return res.status(500).json({ error: 'Failed to send email: ' + error.message });
+            }
             res.json({ message: 'OTP sent to your email!' });
         });
     });

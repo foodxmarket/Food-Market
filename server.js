@@ -10,20 +10,37 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 app.use(express.static(__dirname));
 
-// Database Connection (Using Pool for Auto-Reconnect)
-// Database Connection with Direct Railway Credentials
-const db = mysql.createPool({
-    host: 'autorack.proxy.rlwy.net', // Ya jo bhi aapke Railway host ka naam ho
-    user: 'root',
-    password: ' yahan_apna_password_daalein_jo_screenshot_me_hai ', // Screenshot wala lamba password yahan paste karein
-    database: 'railway', // Railway ka database ka naam 'railway' hota hai
-    port: 27958, // Apke Railway ka port number (jo config me dikh raha ho)
+// Smart Database Connection Pool with Auto-Reconnect
+const mysql = require('mysql2');
+
+const dbConfig = {
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || 'Ramp@123',
+    database: process.env.MYSQLDATABASE || 'food_app_db',
+    port: process.env.MYSQLPORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-});
+};
 
-console.log('Database Connection Pool Created Successfully!');
+let db;
+
+function handleDisconnect() {
+    db = mysql.createPool(dbConfig);
+
+    db.on('error', (err) => {
+        console.error('Database error:', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnect(); // Connection tutne par dobara connect karega
+        } else {
+            throw err;
+        }
+    });
+}
+
+handleDisconnect();
+console.log('Database Connection Pool Initialized Successfully!');
 
 // Temporary memory to store OTPs
 const otpStorage = {}; 

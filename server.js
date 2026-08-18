@@ -10,13 +10,12 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 app.use(express.static(__dirname));
 
-// Database Connection Pool with Auto-Reconnect
-// Database Connection with Correct Railway Database Name ('railway')
-const db = mysql.createPool({
+// Robust Database Connection using Railway URL
+const db = mysql.createPool(process.env.MYSQL_URL || process.env.DATABASE_URL || {
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || 'Ramp@123',
-    database: process.env.MYSQLDATABASE || 'railway', // Yeh local ke liye food_app_db aur Railway ke liye 'railway' use karega
+    database: process.env.MYSQLDATABASE || 'railway',
     port: process.env.MYSQLPORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
@@ -44,9 +43,9 @@ app.post('/api/send-otp', (req, res) => {
     const { email } = req.body;
     
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-        if (err) {
-            console.error('SQL Error in send-otp:', err.message);
-            return res.status(500).json({ error: 'Database error: ' + err.message });
+       if (err) {
+            console.error('SQL Error details:', err);
+            return res.status(500).json({ error: 'Database error: ' + err.sqlMessage });
         }
         if (results.length === 0) return res.status(404).json({ error: 'Email not registered!' });
 

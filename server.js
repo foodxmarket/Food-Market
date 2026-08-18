@@ -11,12 +11,13 @@ app.use(express.urlencoded({limit: '50mb', extended: true}));
 app.use(express.static(__dirname));
 
 // Database Connection (Using Pool for Auto-Reconnect)
+// Database Connection with Direct Railway Credentials
 const db = mysql.createPool({
-    host: process.env.MYSQLHOST || 'localhost',
-    user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || 'Ramp@123',
-    database: process.env.MYSQLDATABASE || 'food_app_db',
-    port: process.env.MYSQLPORT || 3306,
+    host: 'autorack.proxy.rlwy.net', // Ya jo bhi aapke Railway host ka naam ho
+    user: 'root',
+    password: ' yahan_apna_password_daalein_jo_screenshot_me_hai ', // Screenshot wala lamba password yahan paste karein
+    database: 'railway', // Railway ka database ka naam 'railway' hota hai
+    port: 27958, // Apke Railway ka port number (jo config me dikh raha ho)
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0

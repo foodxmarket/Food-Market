@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2'); // Yahan mysql2 ko hatakar mysql kiya gaya hai taaki crash na ho
+const mysql = require('mysql2');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const path = require('path');
@@ -10,10 +10,8 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 app.use(express.static(__dirname));
 
-// Smart Database Connection Pool with Auto-Reconnect
-const mysql = require('mysql2');
-
-const dbConfig = {
+// Database Connection Pool with Auto-Reconnect
+const db = mysql.createPool({
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || 'Ramp@123',
@@ -22,27 +20,10 @@ const dbConfig = {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-};
+});
 
-let db;
+console.log('Database Connection Pool Created Successfully!');
 
-function handleDisconnect() {
-    db = mysql.createPool(dbConfig);
-
-    db.on('error', (err) => {
-        console.error('Database error:', err);
-        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-            handleDisconnect(); // Connection tutne par dobara connect karega
-        } else {
-            throw err;
-        }
-    });
-}
-
-handleDisconnect();
-console.log('Database Connection Pool Initialized Successfully!');
-
-// Temporary memory to store OTPs
 const otpStorage = {}; 
 
 const transporter = nodemailer.createTransport({
@@ -57,7 +38,6 @@ const transporter = nodemailer.createTransport({
 // AUTH & OTP APIs
 // =====================================
 
-// 1. Send OTP API (Login)
 app.post('/api/send-otp', (req, res) => {
     const { email } = req.body;
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
@@ -79,7 +59,6 @@ app.post('/api/send-otp', (req, res) => {
                     <div style="text-align: center; margin: 20px 0;">
                         <span style="font-size: 24px; font-weight: bold; background: #fff; padding: 10px 20px; border: 2px dashed #28a745; color: #28a745; letter-spacing: 5px; border-radius: 5px;">${otp}</span>
                     </div>
-                    <p style="font-size: 12px; color: #777; text-align: center;">Never share your OTP with anyone.</p>
                 </div>
             `
         };
@@ -91,7 +70,6 @@ app.post('/api/send-otp', (req, res) => {
     });
 });
 
-// 2. Verify OTP & Login API
 app.post('/api/verify-otp', (req, res) => {
     const { email, otp } = req.body;
     if (otpStorage[email] && otpStorage[email] === otp) {
@@ -105,7 +83,6 @@ app.post('/api/verify-otp', (req, res) => {
     }
 });
 
-// 3. Send Registration OTP
 app.post('/api/send-register-otp', (req, res) => {
     const { email, username } = req.body;
     db.query('SELECT * FROM users WHERE email = ? OR username = ?', [email, username], (err, results) => {
@@ -127,7 +104,6 @@ app.post('/api/send-register-otp', (req, res) => {
                     <div style="text-align: center; margin: 20px 0;">
                         <span style="font-size: 24px; font-weight: bold; background: #fff; padding: 10px 20px; border: 2px dashed #ffc107; color: #333; letter-spacing: 5px; border-radius: 5px;">${otp}</span>
                     </div>
-                    <p style="font-size: 12px; color: #777; text-align: center;">This code is valid for 10 minutes.</p>
                 </div>
             `
         };
@@ -139,7 +115,6 @@ app.post('/api/send-register-otp', (req, res) => {
     });
 });
 
-// 4. Register with OTP (Duplicate route hatayi gayi hai)
 app.post('/register', (req, res) => {
     const { username, name, email, mobile, password, otp } = req.body;
     if (otpStorage[email] && otpStorage[email] === otp) {
@@ -154,7 +129,6 @@ app.post('/register', (req, res) => {
     }
 });
 
-// 5. Old Fallback Login (Without OTP)
 app.post('/login', (req, res) => {
     const { loginId, password } = req.body;
     db.query('SELECT id, username, name, email, mobile FROM users WHERE (email = ? OR username = ?) AND password = ?', [loginId, loginId, password], (err, results) => {
@@ -165,7 +139,7 @@ app.post('/login', (req, res) => {
 });
 
 // =====================================
-// FOOD APIs
+// FOOD & ORDER APIs
 // =====================================
 app.get('/api/foods', (req, res) => {
     db.query('SELECT f.id, f.food_name, f.price, f.image_url, f.in_market, f.seller_id, u.username as sellerUsername FROM foods f JOIN users u ON f.seller_id = u.id ORDER BY f.created_at DESC', (err, results) => {
@@ -189,9 +163,6 @@ app.post('/api/toggle-food', (req, res) => {
     });
 });
 
-// =====================================
-// ORDER APIs
-// =====================================
 app.post('/api/place-order', (req, res) => {
     const { buyer_id, food_id, delivery_address, quantity, payment_method } = req.body;
     db.query('INSERT INTO orders (buyer_id, food_id, delivery_address, quantity, payment_method, status) VALUES (?, ?, ?, ?, ?, "Waiting for Seller")', 
@@ -201,7 +172,6 @@ app.post('/api/place-order', (req, res) => {
     });
 });
 
-// Buyer ki order history
 app.get('/api/orders/:buyer_id', (req, res) => {
     db.query('SELECT o.id, o.status, o.estimated_time, o.payment_method, DATE_FORMAT(o.order_date, "%d-%b-%Y") as date, f.food_name, f.price FROM orders o JOIN foods f ON o.food_id = f.id WHERE o.buyer_id = ? ORDER BY o.order_date DESC', [req.params.buyer_id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -209,7 +179,6 @@ app.get('/api/orders/:buyer_id', (req, res) => {
     });
 });
 
-// Seller ke paas aaye order details
 app.get('/api/seller-orders/:seller_id', (req, res) => {
     const query = `
         SELECT o.id, o.quantity, o.delivery_address, o.status, o.estimated_time, o.payment_method, DATE_FORMAT(o.order_date, "%d-%b-%Y") as date, f.food_name, u.name as buyer_name, u.mobile as buyer_mobile 
@@ -222,7 +191,6 @@ app.get('/api/seller-orders/:seller_id', (req, res) => {
     });
 });
 
-// Seller response karega (Duplicate route hatayi gayi hai)
 app.post('/api/update-order', (req, res) => {
     const { order_id, estimated_time } = req.body;
     db.query('UPDATE orders SET status = "Accepted by Seller", estimated_time = ? WHERE id = ?', 
@@ -236,12 +204,12 @@ app.post('/api/cancel-order', (req, res) => {
     db.query('UPDATE orders SET status="Cancelled" WHERE id=?', [req.body.order_id], 
     (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({message: "Order Cancelled successfully."})
+        res.json({message: "Order Cancelled successfully."});
     });
 });
 
 // =====================================
-// WISHLIST APIs
+// WISHLIST, OFFICE & ADMIN APIs
 // =====================================
 app.post('/api/add-wishlist', (req, res) => {
     db.query('INSERT INTO wishlist (buyer_id, food_id) VALUES (?, ?)', [req.body.buyer_id, req.body.food_id], (err) => {
@@ -264,17 +232,11 @@ app.post('/api/remove-wishlist', (req, res) => {
     });
 });
 
-// =====================================
-// OFFICE & DELIVERY APIs
-// =====================================
 app.get('/api/office-orders', (req, res) => {
     const query = `
         SELECT o.id, o.quantity, o.delivery_address, o.status, o.payment_method, DATE_FORMAT(o.order_date, "%d-%b-%Y") as date, 
         f.food_name, u.name as buyer_name, u.mobile as buyer_mobile 
-        FROM orders o 
-        JOIN foods f ON o.food_id = f.id 
-        JOIN users u ON o.buyer_id = u.id 
-        ORDER BY o.order_date DESC
+        FROM orders o JOIN foods f ON o.food_id = f.id JOIN users u ON o.buyer_id = u.id ORDER BY o.order_date DESC
     `;
     db.query(query, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -316,7 +278,7 @@ app.post('/api/admin-assign-order', (req, res) => {
     db.query('UPDATE orders SET estimated_time=?, delivery_boy_id=?, status="Out for Delivery" WHERE id=?', 
     [time, db_id, order_id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({message: "Order Sent for Delivery!"})
+        res.json({message: "Order Sent for Delivery!"});
     });
 });
 
@@ -332,13 +294,9 @@ app.post('/api/confirm-delivery', (req, res) => {
     (err) => res.json({message: "Delivery Completed!"}));
 });
 
-// =====================================
-// ADMIN CONTROL APIs
-// =====================================
 app.get('/api/admin/sellers-and-stock', (req, res) => {
     db.query('SELECT id, username, name, mobile FROM users', (err, users) => {
         if(err) return res.status(500).json({error: err.message});
-        
         db.query('SELECT id, seller_id, food_name, price FROM foods', (err, foods) => {
             if(err) return res.status(500).json({error: err.message});
             res.json({ users, foods });

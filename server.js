@@ -43,9 +43,9 @@ app.post('/api/send-otp', (req, res) => {
     const { email } = req.body;
     
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-       if (err) {
-            console.error('SQL Error details:', err);
-            return res.status(500).json({ error: 'Database error: ' + err.sqlMessage });
+      if (err) {
+            console.error('Full Database Error:', err);
+            return res.status(500).json({ error: 'Database error: ' + (err.message || JSON.stringify(err)) });
         }
         if (results.length === 0) return res.status(404).json({ error: 'Email not registered!' });
 
